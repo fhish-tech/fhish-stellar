@@ -1,0 +1,24 @@
+{
+  "name": "fhish-stellar-offchain",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Off-chain FHE coprocessor + FhishClient SDK for fhish on Stellar (real Zama tfhe)",
+  "scripts": {
+    "demo": "tsx src/demo.ts",
+    "test": "vitest run",
+    "fhe-selftest": "tsx src/selftest.ts"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "^16.0.1",
+    "dotenv": "^16.4.7",
+    "fhish-wasm": "file:./vendor/fhish-wasm",
+    "undici": "^8.5.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.9"
+  }
+}

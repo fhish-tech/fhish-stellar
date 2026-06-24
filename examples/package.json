@@ -1,0 +1,21 @@
+{
+  "name": "fhish-examples-stellar",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Confidential-dApp examples for fhish on Stellar/Soroban — deployed to TestNet with txn proofs (real Zama tfhe)",
+  "scripts": {
+    "examples": "tsx src/run.ts",
+    "gen-readme": "tsx src/gen-readme.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@stellar/stellar-sdk": "^16.0.1",
+    "dotenv": "^16.4.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

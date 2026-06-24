@@ -1,0 +1,354 @@
+{
+  "network": "stellar-testnet",
+  "explorer": "https://stellar.expert/explorer/testnet",
+  "examples": {
+    "01-homomorphic-add": {
+      "title": "Homomorphic addition (5 + 7)",
+      "description": "Encrypt two constants, add the ciphertexts on-chain (symbolic handle) + off-chain (tfhe), decrypt 12.",
+      "contract": "FheCoprocessor",
+      "contractId": "CBVOT4ANZCYQIME7TXIRRQB3GSJAAN7SSLOH3D67TL3I2EOEE6CFRVZF",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CBVOT4ANZCYQIME7TXIRRQB3GSJAAN7SSLOH3D67TL3I2EOEE6CFRVZF",
+      "txns": [
+        {
+          "label": "deploy FheCoprocessor",
+          "txId": "97694ba33a925fa4a7d0dc1a77e26cc7885d43f47f6ebcae489d709f63cdb041",
+          "url": "https://stellar.expert/explorer/testnet/tx/97694ba33a925fa4a7d0dc1a77e26cc7885d43f47f6ebcae489d709f63cdb041"
+        },
+        {
+          "label": "trivial_encrypt(5)",
+          "txId": "36dd3be10503816f668db888a0b2af092dc84fdd017dca508218a05990132197",
+          "url": "https://stellar.expert/explorer/testnet/tx/36dd3be10503816f668db888a0b2af092dc84fdd017dca508218a05990132197"
+        },
+        {
+          "label": "trivial_encrypt(7)",
+          "txId": "1e429e1bdebbebf7215801a7f24c63deeedc82241b41e168f7493ccd995a1d8a",
+          "url": "https://stellar.expert/explorer/testnet/tx/1e429e1bdebbebf7215801a7f24c63deeedc82241b41e168f7493ccd995a1d8a"
+        },
+        {
+          "label": "fhe_add",
+          "txId": "d4ad95b3fc15430c2725d7922dd147ce80cc5cf280d866c08465ee7baaff365d",
+          "url": "https://stellar.expert/explorer/testnet/tx/d4ad95b3fc15430c2725d7922dd147ce80cc5cf280d866c08465ee7baaff365d"
+        }
+      ],
+      "outputs": {
+        "decrypt(5 + 7)": 12
+      },
+      "status": "ok"
+    },
+    "02-homomorphic-multiply": {
+      "title": "Homomorphic multiply (6 × 7) — e.g. price × qty",
+      "description": "Multiply two encrypted values; decrypt 42.",
+      "contract": "FheCoprocessor",
+      "contractId": "CAH5XYJQIHLFIF4E7ZLBWTDWO3K7M7FBWAM2EHSL6ROYJGQ4GJC5C6X6",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CAH5XYJQIHLFIF4E7ZLBWTDWO3K7M7FBWAM2EHSL6ROYJGQ4GJC5C6X6",
+      "txns": [
+        {
+          "label": "deploy FheCoprocessor",
+          "txId": "4966ee6aaf4e413b517cb074c0c4e9c385450307d8a9fc656b37d98b46263f66",
+          "url": "https://stellar.expert/explorer/testnet/tx/4966ee6aaf4e413b517cb074c0c4e9c385450307d8a9fc656b37d98b46263f66"
+        },
+        {
+          "label": "trivial_encrypt(6)",
+          "txId": "e1f2352bd79e8d3b10ffeff718ce8904fdb4cbf8f804396e5674a309de6a4c5a",
+          "url": "https://stellar.expert/explorer/testnet/tx/e1f2352bd79e8d3b10ffeff718ce8904fdb4cbf8f804396e5674a309de6a4c5a"
+        },
+        {
+          "label": "trivial_encrypt(7)",
+          "txId": "204ac3fae30b7aaa8aa96310923a57a98a5b8a795f1a62674bc7c11b02c02bde",
+          "url": "https://stellar.expert/explorer/testnet/tx/204ac3fae30b7aaa8aa96310923a57a98a5b8a795f1a62674bc7c11b02c02bde"
+        },
+        {
+          "label": "fhe_mul",
+          "txId": "23a7f63b0f03eeebd6387283251283cc8773820ef15abb11fb041e878c330a34",
+          "url": "https://stellar.expert/explorer/testnet/tx/23a7f63b0f03eeebd6387283251283cc8773820ef15abb11fb041e878c330a34"
+        }
+      ],
+      "outputs": {
+        "decrypt(6 × 7)": 42
+      },
+      "status": "ok"
+    },
+    "03-encrypted-user-input": {
+      "title": "Real encrypted user input (client-side public-key encryption)",
+      "description": "Client encrypts 30 under the gateway public key, uploads it, contract verifies the input handle, then fhe_add(30, 12) = 42.",
+      "contract": "FheCoprocessor",
+      "contractId": "CB7DDZWG5ZF476OVSAYJFI3B2KRXL2UDULF3LZQI7XQABF4KAUCX6S5O",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CB7DDZWG5ZF476OVSAYJFI3B2KRXL2UDULF3LZQI7XQABF4KAUCX6S5O",
+      "txns": [
+        {
+          "label": "deploy FheCoprocessor",
+          "txId": "9b1c6cc7c5a6e6edb0f3716e44e6ee5a67c355fae01e6535703e9e03d0d74f1c",
+          "url": "https://stellar.expert/explorer/testnet/tx/9b1c6cc7c5a6e6edb0f3716e44e6ee5a67c355fae01e6535703e9e03d0d74f1c"
+        },
+        {
+          "label": "verify_input(enc 30)",
+          "txId": "3190da3991c802c25c636b84074dbccfb3f649ddbdc636c939a8911c1c106420",
+          "url": "https://stellar.expert/explorer/testnet/tx/3190da3991c802c25c636b84074dbccfb3f649ddbdc636c939a8911c1c106420"
+        },
+        {
+          "label": "trivial_encrypt(12)",
+          "txId": "7387fa564cd750fa5f512a034fa22e2f420b46192e0926b984446d7a7235bf97",
+          "url": "https://stellar.expert/explorer/testnet/tx/7387fa564cd750fa5f512a034fa22e2f420b46192e0926b984446d7a7235bf97"
+        },
+        {
+          "label": "fhe_add",
+          "txId": "3ee9b5d465f92f941d459c7469547d17a4170d05907bddfcae1e5c87efbf16b0",
+          "url": "https://stellar.expert/explorer/testnet/tx/3ee9b5d465f92f941d459c7469547d17a4170d05907bddfcae1e5c87efbf16b0"
+        }
+      ],
+      "outputs": {
+        "decrypt(enc(30) + 12)": 42
+      },
+      "status": "ok"
+    },
+    "04-private-aggregator": {
+      "title": "Confidential aggregation (sum of encrypted inputs)",
+      "description": "Sum [10, 20, 30, 40] homomorphically; decrypt 100. Pattern for private analytics / payroll totals.",
+      "contract": "FheCoprocessor",
+      "contractId": "CD77KUOCTNAMWR4H6MXD7LD4MVZWEBWBXDB7ZK64EGJD57TNJ4N2355O",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CD77KUOCTNAMWR4H6MXD7LD4MVZWEBWBXDB7ZK64EGJD57TNJ4N2355O",
+      "txns": [
+        {
+          "label": "deploy FheCoprocessor",
+          "txId": "5ae697ba3477f3b42e55f6d89e05e7f1bb982f9d8d596cae5fa9bde67ab80764",
+          "url": "https://stellar.expert/explorer/testnet/tx/5ae697ba3477f3b42e55f6d89e05e7f1bb982f9d8d596cae5fa9bde67ab80764"
+        },
+        {
+          "label": "trivial_encrypt(10)",
+          "txId": "08493cf5e9bbb3cc9dbd875127418da1e801c037f7a0b48e871a4da7a447abed",
+          "url": "https://stellar.expert/explorer/testnet/tx/08493cf5e9bbb3cc9dbd875127418da1e801c037f7a0b48e871a4da7a447abed"
+        },
+        {
+          "label": "trivial_encrypt(20)",
+          "txId": "9dd388eb31792a5566e51d9a2b2efbbe10f6fda41bd3b8f32e7a9a04c432c86e",
+          "url": "https://stellar.expert/explorer/testnet/tx/9dd388eb31792a5566e51d9a2b2efbbe10f6fda41bd3b8f32e7a9a04c432c86e"
+        },
+        {
+          "label": "fhe_add(+20)",
+          "txId": "610bd600c6084fbeee01b81fcdf019c7dcd9841fde47f7a7c69fb2b79156a8a0",
+          "url": "https://stellar.expert/explorer/testnet/tx/610bd600c6084fbeee01b81fcdf019c7dcd9841fde47f7a7c69fb2b79156a8a0"
+        },
+        {
+          "label": "trivial_encrypt(30)",
+          "txId": "6cb01c672a6b5d745eba08c01cc50a1ef981228af89f0f3bc6435265365ea7f5",
+          "url": "https://stellar.expert/explorer/testnet/tx/6cb01c672a6b5d745eba08c01cc50a1ef981228af89f0f3bc6435265365ea7f5"
+        },
+        {
+          "label": "fhe_add(+30)",
+          "txId": "4eb4d81c3dc131567d7e264ce6d4d0129655bfa5daf6866ee37931cc3f5c9eae",
+          "url": "https://stellar.expert/explorer/testnet/tx/4eb4d81c3dc131567d7e264ce6d4d0129655bfa5daf6866ee37931cc3f5c9eae"
+        },
+        {
+          "label": "trivial_encrypt(40)",
+          "txId": "3d95cbb3bd420cb996912c11093edef645e0a4753d2926ac3e351be32d7ba274",
+          "url": "https://stellar.expert/explorer/testnet/tx/3d95cbb3bd420cb996912c11093edef645e0a4753d2926ac3e351be32d7ba274"
+        },
+        {
+          "label": "fhe_add(+40)",
+          "txId": "760cb1b3481bfb551c444f8f21f30418f73209bf0f392711124d449dc5470ac5",
+          "url": "https://stellar.expert/explorer/testnet/tx/760cb1b3481bfb551c444f8f21f30418f73209bf0f392711124d449dc5470ac5"
+        }
+      ],
+      "outputs": {
+        "decrypt(10+20+30+40)": 100
+      },
+      "status": "ok"
+    },
+    "05-sealed-bid-highest": {
+      "title": "Sealed-bid auction — highest encrypted bid wins",
+      "description": "Encrypted bids [45, 80, 30]; fhe_max reveals only the winning amount 80.",
+      "contract": "FheCoprocessor",
+      "contractId": "CDJPWYN4BKS3IGSFGOHDTPQABRFRYQBJLGPY3DH77QJOVWKX4LSGKVMY",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CDJPWYN4BKS3IGSFGOHDTPQABRFRYQBJLGPY3DH77QJOVWKX4LSGKVMY",
+      "txns": [
+        {
+          "label": "deploy FheCoprocessor",
+          "txId": "6ce292df31797a4a7d06c3cee32f7422bd09677015ff252c14a88f55c0bbbb88",
+          "url": "https://stellar.expert/explorer/testnet/tx/6ce292df31797a4a7d06c3cee32f7422bd09677015ff252c14a88f55c0bbbb88"
+        },
+        {
+          "label": "bid(45)",
+          "txId": "fb4497e6d8b03fee4e14f2bc0f3eb8505f41f7f224ddc79037cec0a1d991242f",
+          "url": "https://stellar.expert/explorer/testnet/tx/fb4497e6d8b03fee4e14f2bc0f3eb8505f41f7f224ddc79037cec0a1d991242f"
+        },
+        {
+          "label": "bid(80)",
+          "txId": "03940c6423709058e5e90d399cdd6e557c5a734289b7f6c00abefaa8709fae10",
+          "url": "https://stellar.expert/explorer/testnet/tx/03940c6423709058e5e90d399cdd6e557c5a734289b7f6c00abefaa8709fae10"
+        },
+        {
+          "label": "fhe_max",
+          "txId": "440da9f9c89e16441db8df8c8e65b7d8c6842f9dd1f7cc8e817a933accd48982",
+          "url": "https://stellar.expert/explorer/testnet/tx/440da9f9c89e16441db8df8c8e65b7d8c6842f9dd1f7cc8e817a933accd48982"
+        },
+        {
+          "label": "bid(30)",
+          "txId": "7d2ee7e24752fc1ff1efc80dbf437773448226360434c684eb8f6a65ce41ade2",
+          "url": "https://stellar.expert/explorer/testnet/tx/7d2ee7e24752fc1ff1efc80dbf437773448226360434c684eb8f6a65ce41ade2"
+        },
+        {
+          "label": "fhe_max",
+          "txId": "c7323d1f6e10f2c9eaa420d20d6e889e33c1715da5891d9ddc28596ef0c6c1ac",
+          "url": "https://stellar.expert/explorer/testnet/tx/c7323d1f6e10f2c9eaa420d20d6e889e33c1715da5891d9ddc28596ef0c6c1ac"
+        }
+      ],
+      "outputs": {
+        "winning bid": 80
+      },
+      "status": "ok"
+    },
+    "06-lowest-offer": {
+      "title": "Lowest sealed offer (floor price)",
+      "description": "Encrypted offers [45, 80, 30]; fhe_min reveals only 30.",
+      "contract": "FheCoprocessor",
+      "contractId": "CDXK2DACME547B3RT6DXXEEYP5RCJI2JDWSELCUYQRKZMOYTGVIC3N7U",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CDXK2DACME547B3RT6DXXEEYP5RCJI2JDWSELCUYQRKZMOYTGVIC3N7U",
+      "txns": [
+        {
+          "label": "deploy FheCoprocessor",
+          "txId": "e96412c8257931fd462c51120175f82ba12055887818854ecc192102e1d23ba8",
+          "url": "https://stellar.expert/explorer/testnet/tx/e96412c8257931fd462c51120175f82ba12055887818854ecc192102e1d23ba8"
+        },
+        {
+          "label": "offer(45)",
+          "txId": "503a968a0a2f61f55ae1fc61fe7da8ab5bd5a3e8fa4eacc64b353d219a5e5d4c",
+          "url": "https://stellar.expert/explorer/testnet/tx/503a968a0a2f61f55ae1fc61fe7da8ab5bd5a3e8fa4eacc64b353d219a5e5d4c"
+        },
+        {
+          "label": "offer(80)",
+          "txId": "8e70f58acb3cb3183113d7883f835f0a07f8307f443847408d4f0df5a5e9d36c",
+          "url": "https://stellar.expert/explorer/testnet/tx/8e70f58acb3cb3183113d7883f835f0a07f8307f443847408d4f0df5a5e9d36c"
+        },
+        {
+          "label": "fhe_min",
+          "txId": "093047ce000def15776f0507b1870daa011362ec0faac929cdfe5ae0e43cbc51",
+          "url": "https://stellar.expert/explorer/testnet/tx/093047ce000def15776f0507b1870daa011362ec0faac929cdfe5ae0e43cbc51"
+        },
+        {
+          "label": "offer(30)",
+          "txId": "89366cb81ec82738b69675bdcb32c9926b8c6a12d13e18df8f095005645eb35c",
+          "url": "https://stellar.expert/explorer/testnet/tx/89366cb81ec82738b69675bdcb32c9926b8c6a12d13e18df8f095005645eb35c"
+        },
+        {
+          "label": "fhe_min",
+          "txId": "d09ddddf42af226884b8446f30c0a4797e1f439c3f35e729b0e33561267e7c33",
+          "url": "https://stellar.expert/explorer/testnet/tx/d09ddddf42af226884b8446f30c0a4797e1f439c3f35e729b0e33561267e7c33"
+        }
+      ],
+      "outputs": {
+        "lowest offer": 30
+      },
+      "status": "ok"
+    },
+    "07-confidential-threshold": {
+      "title": "Confidential threshold check (100 ≥ 50 ?)",
+      "description": "Homomorphic comparison returns an encrypted boolean; decrypt 1 (true). Pattern for \"balance ≥ limit?\" without revealing the balance.",
+      "contract": "FheCoprocessor",
+      "contractId": "CAIM5UZUN6ZFK3RLVSILV5NHFCR5NTLKYVG5T7XM35RWDF4FLAMAAM7I",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CAIM5UZUN6ZFK3RLVSILV5NHFCR5NTLKYVG5T7XM35RWDF4FLAMAAM7I",
+      "txns": [
+        {
+          "label": "deploy FheCoprocessor",
+          "txId": "de493605938c0109c94b2012e7a3a8c2bd2ed2b3eef5aa4a39ccfe0fb8a9e30b",
+          "url": "https://stellar.expert/explorer/testnet/tx/de493605938c0109c94b2012e7a3a8c2bd2ed2b3eef5aa4a39ccfe0fb8a9e30b"
+        },
+        {
+          "label": "trivial_encrypt(100)",
+          "txId": "7ddae06d35f4cbd0008ccdc5212b826536ae4ad71b12f1553d59ba5234f21b22",
+          "url": "https://stellar.expert/explorer/testnet/tx/7ddae06d35f4cbd0008ccdc5212b826536ae4ad71b12f1553d59ba5234f21b22"
+        },
+        {
+          "label": "trivial_encrypt(50)",
+          "txId": "dc99283d60726e5c9bdeb653fa4fb60d3fb6b57eebd2149374ae174aa3b1f418",
+          "url": "https://stellar.expert/explorer/testnet/tx/dc99283d60726e5c9bdeb653fa4fb60d3fb6b57eebd2149374ae174aa3b1f418"
+        },
+        {
+          "label": "fhe_ge",
+          "txId": "791e26e4ede8114cec20033a0711fd1b55aacf775bc7f05adac1a8f4ae44da5b",
+          "url": "https://stellar.expert/explorer/testnet/tx/791e26e4ede8114cec20033a0711fd1b55aacf775bc7f05adac1a8f4ae44da5b"
+        }
+      ],
+      "outputs": {
+        "decrypt(100 ≥ 50)": 1
+      },
+      "status": "ok"
+    },
+    "08-confidential-token-mint": {
+      "title": "Confidential token — encrypted mint",
+      "description": "Issue 1000 encrypted units; only the holder can decrypt the balance (1000).",
+      "contract": "ConfidentialToken",
+      "contractId": "CDAZRSIOVLUPF5Y4FKUO57GUWVOLUABPZYNFC7PHOOM6GEJYFE4JLSKQ",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CDAZRSIOVLUPF5Y4FKUO57GUWVOLUABPZYNFC7PHOOM6GEJYFE4JLSKQ",
+      "txns": [
+        {
+          "label": "deploy ConfidentialToken",
+          "txId": "0400269b66269fffb4859c4acd17bec2085e7da76c85667c87966e0bf961508f",
+          "url": "https://stellar.expert/explorer/testnet/tx/0400269b66269fffb4859c4acd17bec2085e7da76c85667c87966e0bf961508f"
+        },
+        {
+          "label": "mint(1000)",
+          "txId": "dd431062fedb2f13e2187a3367fac531de4791283542270eb069651f4f048da1",
+          "url": "https://stellar.expert/explorer/testnet/tx/dd431062fedb2f13e2187a3367fac531de4791283542270eb069651f4f048da1"
+        }
+      ],
+      "outputs": {
+        "holder balance": 1000
+      },
+      "status": "ok"
+    },
+    "09-confidential-transfer": {
+      "title": "Confidential token — private transfer",
+      "description": "Mint 1000 to alice, transfer an encrypted 250 to bob; decrypt alice 750, bob 250. Amounts never appear on-chain.",
+      "contract": "ConfidentialToken",
+      "contractId": "CB6EOWNIQJA6H7XA4RSF6TD6TEIQNWSB7KV2J67UL7OC3VZXIU2DKUQR",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CB6EOWNIQJA6H7XA4RSF6TD6TEIQNWSB7KV2J67UL7OC3VZXIU2DKUQR",
+      "txns": [
+        {
+          "label": "deploy ConfidentialToken",
+          "txId": "5978e59fb4b1ac95eeaa97702267f8bdbca31ca2122c2b88f51e56156a33d678",
+          "url": "https://stellar.expert/explorer/testnet/tx/5978e59fb4b1ac95eeaa97702267f8bdbca31ca2122c2b88f51e56156a33d678"
+        },
+        {
+          "label": "mint(1000 to alice)",
+          "txId": "7b5f0f9dbfacdfbe614f94ff633e1314b7937b121f1c288ff8ac0e0de9ac0a85",
+          "url": "https://stellar.expert/explorer/testnet/tx/7b5f0f9dbfacdfbe614f94ff633e1314b7937b121f1c288ff8ac0e0de9ac0a85"
+        },
+        {
+          "label": "transfer(enc 250 -> bob)",
+          "txId": "1488948b5ab1984527d26eae068d4463ae92127a3146351300fee74c646cc212",
+          "url": "https://stellar.expert/explorer/testnet/tx/1488948b5ab1984527d26eae068d4463ae92127a3146351300fee74c646cc212"
+        }
+      ],
+      "outputs": {
+        "alice balance": 750,
+        "bob balance": 250
+      },
+      "status": "ok"
+    },
+    "10-decryption-acl": {
+      "title": "Per-account decryption ACL",
+      "description": "After minting 500 to the holder, the holder decrypts (500) but an unrelated account is denied on-chain.",
+      "contract": "ConfidentialToken",
+      "contractId": "CCQA5JUOCNIZNR7PTJUO5YQVZMA6JWUZLKDF4WDPS7GUTSO3VN6GJO6J",
+      "contractUrl": "https://stellar.expert/explorer/testnet/contract/CCQA5JUOCNIZNR7PTJUO5YQVZMA6JWUZLKDF4WDPS7GUTSO3VN6GJO6J",
+      "txns": [
+        {
+          "label": "deploy ConfidentialToken",
+          "txId": "ac3157e88d1a2aa474e534da7853d3124e6e56303c9c12e4bbdea3d6b00f5060",
+          "url": "https://stellar.expert/explorer/testnet/tx/ac3157e88d1a2aa474e534da7853d3124e6e56303c9c12e4bbdea3d6b00f5060"
+        },
+        {
+          "label": "mint(500)",
+          "txId": "72f480a68fbd2824e09a8013569dc98593c874ab15cc2c4d0287d62107cd68e9",
+          "url": "https://stellar.expert/explorer/testnet/tx/72f480a68fbd2824e09a8013569dc98593c874ab15cc2c4d0287d62107cd68e9"
+        }
+      ],
+      "outputs": {
+        "owner decrypts": 500,
+        "stranger denied": "yes"
+      },
+      "status": "ok"
+    }
+  },
+  "deployer": "GBGHH2E6XJUPR6ETVNVTYRLUUPFAPF6T7Y4TGUQIDPLLSUVAGWPJZXP7"
+}
