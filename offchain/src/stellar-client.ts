@@ -10,35 +10,19 @@ import * as StellarSdk from '@stellar/stellar-sdk'
 import { FheGateway } from './gateway'
 import { encryptValueWithPublicKeyBytes, TYPE } from './fhe-engine'
 import { decodeEvent, type DecodedEvent } from './events'
+import { materializeEvents } from './relayer'
 import { loadConfig, type StellarConfig } from './config'
 
 const { Contract, TransactionBuilder, Keypair, Address, nativeToScVal, scValToNative, BASE_FEE } = StellarSdk
 const rpc = StellarSdk.rpc
 const EXPLORER = 'https://stellar.expert/explorer/testnet'
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
-const u8 = (v: any): Uint8Array => (v instanceof Uint8Array ? v : Uint8Array.from(Buffer.from(v)))
 
 export interface InvokeResult {
   returnValue: any
   hash: string
   url: string
   events: DecodedEvent[]
-}
-
-/** Materialize the FHE ops a transaction emitted into real ciphertexts in the gateway. */
-function materialize(events: DecodedEvent[], gw: FheGateway): void {
-  for (const e of events) {
-    if (e.name === 'trivial_encrypt') {
-      gw.materializeTrivial(Number(e.data.value), u8(e.data.result))
-    } else if (e.name === 'fhe_op') {
-      try {
-        gw.materializeOp(Number(e.data.opcode), u8(e.data.lhs), u8(e.data.rhs), u8(e.data.result))
-      } catch {
-        /* operand not yet present (out-of-order); the demo processes per-tx in order */
-      }
-    }
-    // verify_input: ciphertext was uploaded by the client; fhe_select: not used by these contracts
-  }
 }
 
 export class FhishStellarClient {
@@ -100,7 +84,7 @@ export class FhishStellarClient {
     if (got.status !== 'SUCCESS') throw new Error(`tx ${method}: ${got.status}`)
 
     const events = await this.fetchEvents(contractId, (got as any).ledger, sent.hash)
-    materialize(events, this.gateway)
+    materializeEvents(events, this.gateway)
     const returnValue = (got as any).returnValue ? scValToNative((got as any).returnValue) : undefined
     return { returnValue, hash: sent.hash, url: `${EXPLORER}/tx/${sent.hash}`, events }
   }

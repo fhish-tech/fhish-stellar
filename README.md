@@ -88,6 +88,7 @@ cd examples && npm install && npm run examples && npm run gen-readme
 | `fhe-lib` / `fhe-coprocessor` | ✅ compiled, deployed, tested | `cargo test` (determinism, ACL, ops) |
 | `confidential-token` | ✅ compiled, deployed, tested | `cargo test` (mint/transfer/ACL) |
 | Off-chain coprocessor + `FhishStellarClient` SDK | ✅ real `tfhe`, persistent keys, sig+ACL decrypt | vitest (engine + live-TestNet e2e) |
+| Standalone coprocessor (relayer daemon + HTTP gateway) | ✅ decoupled service — relayer materializes live events, HTTP sig+ACL decrypt | `npm run gateway-selftest` |
 | End-to-end (encrypt → transfer → decrypt) | ✅ real FHE on TestNet | `npm test` / `npm run demo` |
 
 The off-chain test suite is **anti-mock**: it asserts ~257 KB randomized ciphertexts and runs a full

@@ -11,19 +11,25 @@ math happens — Soroban only stores 32-byte handles + an ACL and emits `FheOp` 
 | `src/fhe-engine.ts` | Real Zama `tfhe` (via vendored `fhish-wasm`): keygen, public-key encrypt, trivial-encrypt, homomorphic ops (`add`/`sub`/`mul`/`min`/`max`/compares), decrypt, deterministic `handleForCiphertext`. **Chain-agnostic.** |
 | `src/gateway.ts` | `FheGateway`: persistent keyset, ciphertext store, `materializeTrivial`/`materializeOp` (replay an on-chain op into a real ciphertext), `decryptFor` (ACL-gated). |
 | `src/events.ts` | Decode Soroban `contractevent`s from the RPC `getEvents` response (stable across TransactionMeta versions). |
+| `src/relayer.ts` | `materializeEvents` (replay decoded events → real ciphertexts) + **`runRelayer`** (the always-on daemon: polls RPC `getEvents` for watched contracts and materializes). |
+| `src/acl.ts` | `aclAllowed` — on-chain ACL check (`is_allowed`/`can_decrypt`) via simulation. |
+| `src/server.ts` | **The standalone coprocessor** — HTTP gateway + relayer daemon in one process (`startCoprocessor`). |
 | `src/stellar-client.ts` | **`FhishStellarClient`** — `encrypt` (real PK-encrypt + upload), `invoke` (build → simulate → assemble → sign → send → poll → materialize events), `read` (simulate-only), `decrypt` (sign handle → verify Ed25519 → check on-chain ACL → decrypt). |
 | `src/config.ts` | Load the gitignored `.env.testnet`; IPv4 + no-keepalive HTTP (long FHE gaps stale sockets). |
 | `src/demo.ts` | Full end-to-end showcase: `mint → confidential transfer → decrypt` on TestNet. |
 | `src/selftest.ts` | Pure-engine self-test (no chain). |
+| `src/server-selftest.ts` | Integration test for the coprocessor daemon + HTTP gateway (below). |
 | `test/e2e.test.ts` | **Anti-mock** suite (below). |
 
 ## Run
 
 ```bash
 npm install
-npm run fhe-selftest   # pure FHE engine: add/min/sub over real ciphertexts (no chain)
-npm test               # anti-mock vitest suite (real tfhe + live TestNet)
-npm run demo           # mint → transfer → decrypt on TestNet, prints alice 750 / bob 250
+npm run fhe-selftest      # pure FHE engine: add/min/sub over real ciphertexts (no chain)
+npm test                  # anti-mock vitest suite (real tfhe + live TestNet)
+npm run demo              # mint → transfer → decrypt on TestNet, prints alice 750 / bob 250
+npm run gateway           # run the standalone coprocessor (HTTP gateway + relayer daemon)
+npm run gateway-selftest  # integration test: relayer materializes live events, HTTP decrypt
 ```
 
 Needs a funded `.env.testnet` (gitignored): `RPC_URL`, `NETWORK_PASSPHRASE`, `DEPLOYER_SECRET`,
@@ -45,6 +51,31 @@ The test suite is deliberately adversarial about mocking:
 ✓ FHE engine is real — ~257KB randomized ciphertexts, real homomorphic add/min/sub
 ✓ Stellar TestNet e2e — mint → transfer → decrypt = alice 750, bob 250; stranger DENIED
 ```
+
+## Standalone coprocessor (daemon + HTTP gateway)
+
+`FhishStellarClient` materializes events itself (convenient for demos/tests), but production wants a
+**decoupled** coprocessor: the client only signs transactions, while a separate service holds the FHE
+keys, watches the chain, and serves decryption. `src/server.ts` is exactly that — a relayer daemon +
+HTTP gateway in one process:
+
+```bash
+npm run gateway   # GATEWAY_PORT (8790) · KEY_FILE (.fhe-keys/coprocessor.key) · CONTRACT_IDS (csv)
+```
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET  /health` | status + how many ciphertexts are materialized |
+| `GET  /public-key` | the FHE public key (clients encrypt with it) |
+| `POST /ciphertext` | `{ ciphertext }` → upload an input ciphertext, returns its handle |
+| `GET  /ciphertext/:handle` | fetch a materialized ciphertext |
+| `POST /decrypt` | `{ handle, requester, signature, contractId, aclMethod }` → plaintext, gated by Ed25519 signature **and** the on-chain ACL |
+
+The background **relayer** polls RPC `getEvents` for `CONTRACT_IDS` and materializes every `FheOp` /
+`trivial_encrypt` into a real ciphertext — so decryption never depends on who sent the transaction.
+`npm run gateway-selftest` proves it end-to-end: the client sends `trivial_encrypt`/`fhe_add`
+on-chain, the relayer independently materializes them, `POST /decrypt` returns **12**, and an
+unauthorized requester gets **403**.
 
 ## How `invoke` materializes FHE
 

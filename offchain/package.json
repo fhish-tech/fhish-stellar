@@ -7,7 +7,9 @@
   "scripts": {
     "demo": "tsx src/demo.ts",
     "test": "vitest run",
-    "fhe-selftest": "tsx src/selftest.ts"
+    "fhe-selftest": "tsx src/selftest.ts",
+    "gateway": "tsx src/server.ts",
+    "gateway-selftest": "tsx src/server-selftest.ts"
   },
   "dependencies": {
     "@stellar/stellar-sdk": "^16.0.1",
