@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      :root {
+        --bg: #05070e;
+        --ink: #eaf2ff;
+        --dim: #7d8aa6;
+        --cyan: #1fe5ff;
+        --violet: #a06bff;
+        --magenta: #ff3ea5;
+        --green: #2bf5a0;
+        --red: #ff4d6d;
+      }
+      html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+      body { font-family: "Inter", sans-serif; color: var(--ink); }
+      .mono { font-family: "JetBrains Mono", monospace; }
+      .disp { font-family: "Inter", sans-serif; font-weight: 800; letter-spacing: -0.02em; }
+
+      #bg-grid {
+        position: absolute; inset: -2px;
+        background-image:
+          linear-gradient(rgba(120,160,255,0.06) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(120,160,255,0.06) 1px, transparent 1px);
+        background-size: 64px 64px;
+        mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 35%, transparent 80%);
+        -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 45%, #000 35%, transparent 80%);
+      }
+      #bg-glow {
+        position: absolute; inset: 0;
+        background:
+          radial-gradient(40% 50% at 22% 28%, rgba(31,229,255,0.18), transparent 70%),
+          radial-gradient(45% 55% at 80% 72%, rgba(160,107,255,0.20), transparent 70%);
+        filter: blur(8px);
+      }
+      #vignette { position: absolute; inset: 0; background: radial-gradient(ellipse 90% 90% at 50% 50%, transparent 55%, rgba(0,0,0,0.85)); pointer-events: none; }
+      #scan { position: absolute; inset: 0; background: repeating-linear-gradient(transparent 0 3px, rgba(0,0,0,0.18) 3px 4px); mix-blend-mode: overlay; opacity: 0.35; pointer-events: none; }
+
+      .scene { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; text-align: center; padding: 0 120px; }
+      .kicker { font-family: "JetBrains Mono", monospace; font-weight: 700; font-size: 24px; letter-spacing: 0.42em; text-transform: uppercase; color: var(--cyan); }
+      .h1 { font-size: 132px; line-height: 0.98; font-weight: 900; }
+      .h2 { font-size: 92px; line-height: 1.02; font-weight: 800; }
+      .grad { background: linear-gradient(100deg, var(--cyan), var(--violet) 55%, var(--magenta)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+      .chip { display: inline-flex; align-items: center; gap: 14px; font-family: "JetBrains Mono", monospace; font-size: 30px; padding: 14px 26px; border: 1px solid rgba(120,160,255,0.28); border-radius: 14px; background: rgba(120,160,255,0.05); }
+      .glow-cyan { text-shadow: 0 0 32px rgba(31,229,255,0.55); }
+      .glow-violet { text-shadow: 0 0 36px rgba(160,107,255,0.55); }
+
+      .cipher { font-family: "JetBrains Mono", monospace; font-size: 30px; color: var(--cyan); letter-spacing: 0.06em; word-break: break-all; max-width: 1180px; }
+
+      .row { display: grid; grid-template-columns: 360px 1fr 220px; gap: 28px; align-items: center; width: 1180px; font-family: "JetBrains Mono", monospace; font-size: 30px; padding: 22px 30px; border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; background: rgba(255,255,255,0.02); }
+      .amt { color: #ffd166; text-align: right; font-weight: 700; }
+      .stamp { position: absolute; left: 50%; top: 44%; font-family: "Inter", sans-serif; font-weight: 900; font-size: 60px; color: var(--red); border: 5px solid var(--red); padding: 10px 28px; border-radius: 12px; opacity: 0; text-shadow: 0 0 24px rgba(255,77,109,.5); white-space: nowrap; }
+
+      .logo { font-family: "Inter", sans-serif; font-weight: 900; font-size: 220px; letter-spacing: -0.05em; }
+
+      .pipe { display: flex; align-items: center; gap: 40px; }
+      .node { display: flex; flex-direction: column; align-items: center; gap: 16px; min-width: 280px; }
+      .node .big { font-family: "Inter", sans-serif; font-weight: 800; font-size: 78px; }
+      .node .cap { font-family: "JetBrains Mono", monospace; font-size: 24px; color: var(--dim); letter-spacing: 0.04em; }
+      .arrow { font-size: 56px; color: var(--cyan); opacity: 0; }
+
+      .bal { display: flex; gap: 100px; }
+      .bal .who { font-family: "JetBrains Mono", monospace; font-size: 34px; color: var(--dim); letter-spacing: 0.1em; }
+      .bal .num { font-family: "Inter", sans-serif; font-weight: 800; font-size: 150px; }
+      .opline { font-family: "JetBrains Mono", monospace; font-size: 34px; color: var(--violet); }
+
+      .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 70px; font-family: "JetBrains Mono", monospace; font-size: 33px; text-align: left; }
+      .ck { display: flex; gap: 20px; align-items: center; opacity: 0; }
+      .ck .mk { color: var(--green); font-weight: 800; }
+
+      .aclcard { display: flex; gap: 80px; }
+      .pers { display: flex; flex-direction: column; align-items: center; gap: 20px; padding: 44px 56px; border-radius: 22px; border: 1px solid rgba(255,255,255,0.1); min-width: 440px; opacity: 0; }
+      .pers .face { font-size: 110px; }
+      .pers .verdict { font-family: "Inter", sans-serif; font-weight: 800; font-size: 52px; }
+      .ok { border-color: rgba(43,245,160,0.5); box-shadow: 0 0 60px rgba(43,245,160,0.12) inset; }
+      .no { border-color: rgba(255,77,109,0.5); box-shadow: 0 0 60px rgba(255,77,109,0.12) inset; }
+
+      .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 36px 70px; width: 1380px; }
+      .stat { opacity: 0; }
+      .stat .v { font-family: "Inter", sans-serif; font-weight: 800; font-size: 92px; }
+      .stat .l { font-family: "JetBrains Mono", monospace; font-size: 26px; color: var(--dim); letter-spacing: 0.06em; margin-top: 6px; }
+
+      .url { font-family: "JetBrains Mono", monospace; font-size: 34px; color: var(--cyan); letter-spacing: 0.02em; opacity: 0; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="45" data-width="1920" data-height="1080">
+      <div id="bg-grid"></div>
+      <div id="bg-glow"></div>
+
+      <!-- S1 — HOOK -->
+      <section class="scene" id="s1">
+        <div class="kicker glow-cyan" id="s1k" style="opacity:0">YOU SEND 250 USDC</div>
+        <div class="cipher" id="s1cipher" style="opacity:0">0x00</div>
+        <h1 class="disp h1" id="s1head" style="opacity:0; margin-top:28px">What if <span class="grad">no one</span><br/>could see the amount?</h1>
+      </section>
+
+      <!-- S2 — PROBLEM -->
+      <section class="scene" id="s2">
+        <div class="kicker" style="color:var(--red); opacity:0" id="s2k">ON EVERY PUBLIC CHAIN</div>
+        <h2 class="disp h2" id="s2head" style="opacity:0; margin:18px 0 46px">Your balance is <span style="color:var(--red)">naked.</span></h2>
+        <div id="s2rows" style="display:flex; flex-direction:column; gap:18px; position:relative">
+          <div class="row r"><span>alice.xlm</span><span style="color:var(--dim)">sent payment</span><span class="amt">1,000.00</span></div>
+          <div class="row r"><span>bob.xlm</span><span style="color:var(--dim)">received</span><span class="amt">250.00</span></div>
+          <div class="row r"><span>carol.xlm</span><span style="color:var(--dim)">balance</span><span class="amt">8,420.00</span></div>
+          <div class="stamp" id="s2stamp" data-layout-allow-overlap>EVERYONE CAN SEE</div>
+        </div>
+      </section>
+
+      <!-- S3 — BRAND -->
+      <section class="scene" id="s3">
+        <div class="logo grad glow-violet" id="s3logo" style="opacity:0">fhish</div>
+        <div class="disp" id="s3sub" style="opacity:0; font-size:54px; margin-top:6px">Fully Homomorphic Encryption, <span class="grad">on Stellar.</span></div>
+        <div class="mono" id="s3tag" style="opacity:0; margin-top:30px; font-size:32px; letter-spacing:0.2em; color:var(--dim)">CONFIDENTIAL SMART CONTRACTS</div>
+      </section>
+
+      <!-- S4 — ENCRYPT PIPELINE -->
+      <section class="scene" id="s4">
+        <div class="kicker" id="s4k" style="opacity:0">HOW IT WORKS</div>
+        <div class="pipe" style="margin-top:40px">
+          <div class="node" id="s4n1" style="opacity:0"><div class="big">250</div><div class="cap">plaintext</div></div>
+          <div class="arrow" id="s4a1">→</div>
+          <div class="node" id="s4n2" style="opacity:0"><div class="big glow-cyan" style="color:var(--cyan)">🔒</div><div class="cap mono" id="s4ct">ciphertext · 257&nbsp;KB</div></div>
+          <div class="arrow" id="s4a2">→</div>
+          <div class="node" id="s4n3" style="opacity:0"><div class="big mono" style="font-size:46px; color:var(--violet)" id="s4handle">0x9f…6b</div><div class="cap">32-byte handle · on-chain</div></div>
+        </div>
+        <div class="disp" id="s4cap" style="opacity:0; font-size:46px; margin-top:60px">Encrypted <span class="grad">end to end.</span></div>
+      </section>
+
+      <!-- S5 — HOMOMORPHIC TRANSFER -->
+      <section class="scene" id="s5">
+        <div class="kicker" id="s5k" style="opacity:0">THE PART THAT SHOULDN'T BE POSSIBLE</div>
+        <div class="opline" id="s5op" style="opacity:0; margin:26px 0 10px">min( ) · sub( ) · add( ) &nbsp;—&nbsp; computed on <span style="color:var(--cyan)">encrypted</span> data</div>
+        <div class="bal" style="margin-top:30px">
+          <div class="node"><div class="who">ALICE</div><div class="num grad" id="s5alice">1000</div></div>
+          <div class="node"><div class="who">BOB</div><div class="num grad" id="s5bob">0</div></div>
+        </div>
+        <div class="disp" id="s5cap" style="opacity:0; font-size:44px; margin-top:50px">Never decrypted on-chain.</div>
+      </section>
+
+      <!-- S6 — PROOF -->
+      <section class="scene" id="s6">
+        <div class="kicker glow-cyan" id="s6k" style="opacity:0">NOT A MOCK — LIVE ON STELLAR TESTNET</div>
+        <div class="checks" id="s6checks" style="margin-top:48px">
+          <div class="ck"><span class="mk">✓</span> decrypt(5 + 7) = 12</div>
+          <div class="ck"><span class="mk">✓</span> sealed-bid max = 80</div>
+          <div class="ck"><span class="mk">✓</span> decrypt(6 × 7) = 42</div>
+          <div class="ck"><span class="mk">✓</span> threshold 100 ≥ 50 = true</div>
+          <div class="ck"><span class="mk">✓</span> private transfer = 750 / 250</div>
+          <div class="ck"><span class="mk">✓</span> 10 / 10 confidential dApps</div>
+        </div>
+        <div class="chip mono" id="s6tx" style="opacity:0; margin-top:46px; color:var(--green)">tx ✓ a0cb50b9…3eb5 · stellar.expert</div>
+      </section>
+
+      <!-- S7 — ACL -->
+      <section class="scene" id="s7">
+        <div class="kicker" id="s7k" style="opacity:0">ONLY YOU CAN DECRYPT YOUR BALANCE</div>
+        <div class="aclcard" style="margin-top:48px">
+          <div class="pers ok" id="s7ok"><div class="face">🙂</div><div class="mono" style="font-size:28px; color:var(--dim)">owner · valid sig + ACL</div><div class="verdict" style="color:var(--green)">750 ✓</div></div>
+          <div class="pers no" id="s7no"><div class="face">🕵️</div><div class="mono" style="font-size:28px; color:var(--dim)">stranger</div><div class="verdict" style="color:var(--red)">DENIED</div></div>
+        </div>
+      </section>
+
+      <!-- S8 — STATS -->
+      <section class="scene" id="s8">
+        <div class="stats">
+          <div class="stat"><div class="v grad">Rust</div><div class="l">Soroban contracts</div></div>
+          <div class="stat"><div class="v grad">Zama&nbsp;tfhe</div><div class="l">real FHE · no mocks</div></div>
+          <div class="stat"><div class="v grad">10</div><div class="l">confidential dApps</div></div>
+          <div class="stat"><div class="v grad">relayer</div><div class="l">+ HTTP gateway</div></div>
+          <div class="stat"><div class="v grad">2</div><div class="l">chains · Stellar + Algorand</div></div>
+          <div class="stat"><div class="v grad">ACL</div><div class="l">per-account decryption</div></div>
+        </div>
+      </section>
+
+      <!-- S9 — CTA -->
+      <section class="scene" id="s9">
+        <div class="logo grad glow-violet" id="s9logo" style="opacity:0; font-size:170px">fhish</div>
+        <div class="disp" id="s9line" style="opacity:0; font-size:58px">Privacy that's <span class="grad">provable.</span></div>
+        <div class="url" id="s9url" style="margin-top:34px">github.com/fhish-tech/fhish-stellar</div>
+      </section>
+
+      <!-- Narration (Kokoro local TTS, af_heart) — direct children of root -->
+      <audio id="vo1" data-start="0.3"  data-duration="4.0" data-track-index="9" src="audio/s1.wav"></audio>
+      <audio id="vo2" data-start="4.8"  data-duration="3.6" data-track-index="9" src="audio/s2.wav"></audio>
+      <audio id="vo3" data-start="9.3"  data-duration="3.2" data-track-index="9" src="audio/s3.wav"></audio>
+      <audio id="vo4" data-start="13.8" data-duration="4.6" data-track-index="9" src="audio/s4.wav"></audio>
+      <audio id="vo5" data-start="19.9" data-duration="6.5" data-track-index="9" src="audio/s5.wav"></audio>
+      <audio id="vo6" data-start="26.8" data-duration="5.6" data-track-index="9" src="audio/s6.wav"></audio>
+      <audio id="vo7" data-start="32.8" data-duration="3.4" data-track-index="9" src="audio/s7.wav"></audio>
+      <audio id="vo8" data-start="37.6" data-duration="5.1" data-track-index="9" src="audio/s8.wav"></audio>
+      <audio id="vo9" data-start="42.8" data-duration="2.1" data-track-index="9" src="audio/s9.wav"></audio>
+
+      <div id="scan"></div>
+      <div id="vignette"></div>
+    </div>
+
+    <script>
+      const tl = gsap.timeline({ paused: true });
+      const HEX = "0123456789abcdef";
+      // deterministic hash-based scramble (seeded by timeline progress — reproducible across renders)
+      const hash = (x) => { const t = Math.sin(x * 12.9898) * 43758.5453; return t - Math.floor(t); };
+      const scr = (n, seed) => { let s = ""; for (let i = 0; i < n; i++) s += HEX[(hash(seed + i * 0.137) * 16) | 0]; return s; };
+
+      const show = (sel, at, dur = 0.45) => tl.to(sel, { opacity: 1, duration: dur, ease: "power2.out" }, at);
+      const hide = (sel, at, dur = 0.4) => tl.to(sel, { opacity: 0, duration: dur, ease: "power2.in" }, at);
+      const rise = (sel, at, dur = 0.5, dist = 26) => tl.fromTo(sel, { opacity: 0, y: dist }, { opacity: 1, y: 0, duration: dur, ease: "power3.out" }, at);
+
+      // continuous backdrop drift
+      tl.to("#bg-glow", { backgroundPosition: "20% 10%, 80% 90%", duration: 45, ease: "none" }, 0);
+
+      /* ===== S1 0.0–4.6 HOOK ===== */
+      show("#s1", 0.0, 0.5);
+      rise("#s1k", 0.2, 0.5, 16);
+      const c1 = { p: 0 };
+      tl.set("#s1cipher", { opacity: 1 }, 1.0);
+      tl.to(c1, { p: 1, duration: 1.5, ease: "none", onUpdate() { document.getElementById("s1cipher").textContent = scr(120, c1.p * 130 + 3); } }, 1.0);
+      tl.to("#s1k", { opacity: 0.25, duration: 0.4 }, 2.5);
+      tl.to("#s1cipher", { opacity: 0.16, scale: 0.96, duration: 0.6 }, 2.7);
+      rise("#s1head", 2.7, 0.7, 40);
+      hide("#s1", 4.2, 0.4);
+
+      /* ===== S2 4.6–9.0 PROBLEM ===== */
+      show("#s2", 4.6, 0.4);
+      rise("#s2k", 4.7, 0.4, 16);
+      rise("#s2head", 5.0, 0.5, 20);
+      tl.fromTo(".r", { opacity: 0, x: -40 }, { opacity: 1, x: 0, duration: 0.45, stagger: 0.16, ease: "power2.out" }, 5.4);
+      tl.fromTo("#s2stamp", { opacity: 0, scale: 1.7, rotation: -9, xPercent: -50, yPercent: -50 }, { opacity: 1, scale: 1, rotation: -9, xPercent: -50, yPercent: -50, duration: 0.4, ease: "back.out(2.2)" }, 6.8);
+      tl.to(".amt", { color: "#ff4d6d", textShadow: "0 0 22px rgba(255,77,109,.6)", duration: 0.4, stagger: 0.05 }, 7.1);
+      hide("#s2", 8.6, 0.4);
+
+      /* ===== S3 9.0–13.4 BRAND ===== */
+      show("#s3", 9.0, 0.4);
+      tl.fromTo("#s3logo", { opacity: 0, scale: 0.82 }, { opacity: 1, scale: 1, duration: 0.7, ease: "back.out(1.7)" }, 9.2);
+      rise("#s3sub", 9.9, 0.5, 24);
+      tl.to("#s3tag", { opacity: 0.85, duration: 0.5 }, 10.4);
+      tl.to("#s3logo", { textShadow: "0 0 64px rgba(160,107,255,0.8)", duration: 1.2, yoyo: true, repeat: 1 }, 10.7);
+      hide("#s3", 13.0, 0.4);
+
+      /* ===== S4 13.4–19.4 ENCRYPT ===== */
+      show("#s4", 13.4, 0.4);
+      tl.to("#s4k", { opacity: 1, duration: 0.4 }, 13.5);
+      rise("#s4n1", 13.9, 0.45, 24);
+      tl.to("#s4a1", { opacity: 1, duration: 0.3 }, 14.5);
+      tl.to("#s4n2", { opacity: 1, duration: 0.45, ease: "power2.out" }, 14.7);
+      const ct = { p: 0 };
+      tl.to(ct, { p: 1, duration: 1.0, ease: "none", onUpdate() { document.getElementById("s4ct").textContent = "0x" + scr(16, ct.p * 90 + 11) + " · 257 KB"; } }, 14.8);
+      tl.call(() => { document.getElementById("s4ct").textContent = "ciphertext · 257 KB"; }, null, 15.85);
+      tl.to("#s4a2", { opacity: 1, duration: 0.3 }, 15.9);
+      tl.to("#s4n3", { opacity: 1, duration: 0.45, ease: "power2.out" }, 16.1);
+      const h = { p: 0 };
+      tl.to(h, { p: 1, duration: 0.9, ease: "none", onUpdate() { document.getElementById("s4handle").textContent = "0x" + scr(8, h.p * 80 + 7); } }, 16.2);
+      tl.call(() => { document.getElementById("s4handle").textContent = "0x9f…6b"; }, null, 17.15);
+      rise("#s4cap", 17.4, 0.5, 24);
+      hide("#s4", 19.0, 0.4);
+
+      /* ===== S5 19.4–26.4 HOMOMORPHIC ===== */
+      show("#s5", 19.4, 0.4);
+      tl.to("#s5k", { opacity: 1, duration: 0.4 }, 19.5);
+      tl.to("#s5op", { opacity: 1, duration: 0.5 }, 19.9);
+      const enc = { p: 0 };
+      tl.set(["#s5alice", "#s5bob"], { fontSize: "84px" }, 20.6);
+      tl.to(enc, { p: 1, duration: 1.6, ease: "none", onUpdate() {
+        document.getElementById("s5alice").textContent = scr(4, enc.p * 70 + 1).toUpperCase();
+        document.getElementById("s5bob").textContent = scr(4, enc.p * 70 + 41).toUpperCase();
+      } }, 20.6);
+      const cnt = { av: 1000, bv: 0 };
+      tl.set(["#s5alice", "#s5bob"], { fontSize: "150px" }, 22.2);
+      tl.to(cnt, { av: 750, bv: 250, duration: 1.0, ease: "power2.out", onUpdate() {
+        document.getElementById("s5alice").textContent = Math.round(cnt.av);
+        document.getElementById("s5bob").textContent = Math.round(cnt.bv);
+      } }, 22.2);
+      tl.fromTo("#s5alice", { scale: 1.15 }, { scale: 1, duration: 0.6, ease: "back.out(2)" }, 23.2);
+      tl.fromTo("#s5bob", { scale: 1.15 }, { scale: 1, duration: 0.6, ease: "back.out(2)" }, 23.2);
+      rise("#s5cap", 24.2, 0.5, 24);
+      hide("#s5", 26.0, 0.4);
+
+      /* ===== S6 26.4–32.4 PROOF ===== */
+      show("#s6", 26.4, 0.4);
+      tl.to("#s6k", { opacity: 1, duration: 0.4 }, 26.5);
+      tl.fromTo(".ck", { opacity: 0, x: -30 }, { opacity: 1, x: 0, duration: 0.4, stagger: 0.22, ease: "power2.out" }, 26.9);
+      rise("#s6tx", 30.6, 0.5, 20);
+      tl.to("#s6tx", { boxShadow: "0 0 40px rgba(43,245,160,0.35)", duration: 0.6, yoyo: true, repeat: 1 }, 31.3);
+      hide("#s6", 32.0, 0.4);
+
+      /* ===== S7 32.4–37.4 ACL ===== */
+      show("#s7", 32.4, 0.4);
+      tl.to("#s7k", { opacity: 1, duration: 0.4 }, 32.5);
+      tl.fromTo("#s7ok", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 33.0);
+      tl.fromTo("#s7no", { opacity: 0, y: 30, scale: 0.9 }, { opacity: 1, y: 0, scale: 1, duration: 0.5, ease: "back.out(1.6)" }, 33.7);
+      tl.fromTo("#s7no", { x: 0 }, { x: -16, duration: 0.07, repeat: 5, yoyo: true, ease: "none" }, 34.7);
+      tl.to("#s7no .verdict", { textShadow: "0 0 26px rgba(255,77,109,0.8)", duration: 0.5, yoyo: true, repeat: 1 }, 34.7);
+      hide("#s7", 37.0, 0.4);
+
+      /* ===== S8 37.4–42.0 STATS ===== */
+      show("#s8", 37.4, 0.4);
+      tl.fromTo(".stat", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.4, stagger: 0.13, ease: "power2.out" }, 37.6);
+      hide("#s8", 41.6, 0.4);
+
+      /* ===== S9 42.0–45.0 CTA ===== */
+      show("#s9", 42.0, 0.4);
+      tl.fromTo("#s9logo", { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.7, ease: "back.out(1.6)" }, 42.2);
+      rise("#s9line", 43.0, 0.5, 22);
+      tl.to("#s9url", { opacity: 0.9, duration: 0.5 }, 43.5);
+      tl.to("#s9logo", { textShadow: "0 0 72px rgba(160,107,255,0.85)", duration: 0.9, yoyo: true, repeat: 1 }, 43.8);
+      tl.to("#s9url", { opacity: 0.55, duration: 0.5, yoyo: true, repeat: 1 }, 44.0);
+      tl.set("#root", { opacity: 1 }, 45);
+
+      window.__timelines = window.__timelines || {};
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
